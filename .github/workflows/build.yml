@@ -1,0 +1,47 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+
+jobs:
+  cross-build:
+    name: Build for ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - x86_64-unknown-linux-musl
+          - aarch64-unknown-linux-musl
+          - armv7-unknown-linux-musleabihf
+          - mipsel-unknown-linux-musl
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Install cross
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cross
+
+      - name: Build release binary
+        run: cross build --release --target ${{ matrix.target }}
+
+      - name: Show artifact size
+        run: stat -c '%n %s' target/${{ matrix.target }}/release/scutclient-rs
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: scutclient-rs-${{ matrix.target }}
+          path: target/${{ matrix.target }}/release/scutclient-rs

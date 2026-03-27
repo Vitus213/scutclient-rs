@@ -1,0 +1,24 @@
+[package]
+name = "scutclient-rs"
+version = "0.1.0"
+edition = "2021"
+authors = ["Scutclient Project"]
+description = "SCUT Dr.com(X) client written in Rust"
+license = "AGPL-3.0"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+md5 = "0.7"
+nix = { version = "0.29", features = ["net", "socket", "ioctl", "signal", "time", "poll"] }
+log = "0.4"
+env_logger = "0.11"
+chrono = "0.4"
+gethostname = "1"
+libc = "0.2"
+
+[profile.release]
+opt-level = "z"      # 优化大小
+lto = true           # 链接时优化
+codegen-units = 1    # 更好的优化
+panic = "abort"      # 减小二进制大小
+strip = true         # 剥离符号
